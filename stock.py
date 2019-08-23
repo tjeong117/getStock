@@ -5,6 +5,7 @@ import datetime
 import pymysql
 import numpy as np
 from pandas import DataFrame
+import csv
 yfinance.pdr_override()
 pandas.core.common.is_list_like = pandas.api.types.is_list_like
 
@@ -31,25 +32,34 @@ class Stock:
         # DB : stock / TABLE : stock_id / COLLUMS : symbol, name, sector, industry
         use_sql = "USE stock;"
         table_sql = "CREATE TABLE stock_id (" \
-                    "stock_symbol VARCHAR(20));"
-        self.run_sql(table_sql)
+                    "s_name VARCHAR(200)," \
+                    "s_symbol varchar(20)," \
+                    "s_sector VARCHAR(200)," \
+                    "s_industry VARCHAR(200)," \
+                    "s_summary VARCHAR(200));"
+        self.cursor.execute(use_sql)
+        self.cursor.execute(table_sql)
 
-        # openning the downloaded file that was intstalled from the internet
-        file = open(directory, 'r')
-        lines = file.readlines()
-        # file.split(",")               # 8 strings are the information of one type of code
-        for i in range(0, 3436):  # total 3436 lines of data
-            individual_line_list = lines[i]  # lines that are separated by ','
-            separate_line = individual_line_list.split(",")
-            # sometimes stock_name has , in its name so it causes to pu a different value
-            # in its sector and industry value
-            stock_symbol = separate_line[0]
-            # insert into mysql
-            insert_sql = "INSERT INTO stock_id (stock_symbol) VALUES (%s)"
-            values = stock_symbol
-            self.cursor.execute(insert_sql, values)
-            self.con.commit()
-        file.close()
+        insert_sql = "INSERT INTO stock_id (s_name, s_symbol, s_sector, s_industry, s_summary) " \
+                     "VALUES (%s, %s, %s, %s, %s);"
+        with open(directory) as csvfile:
+            reader = csv.reader(csvfile, delimiter=" ", quotechar="|")
+            for row in reader:
+                a = " ".join(row)
+                data_b = a.split('","')
+                company_name = data_b[1]       # thiss is the company name
+                company_symbol = data_b[0].replace('"', "")          # this is the company symbol
+                last_sale = data_b[2]           # thiss is the last sale
+                market_cap = data_b[3]           # this is market cap
+                ADR_TSO = data_b[4]           # this is ADR TSO
+                ipo_year = data_b[5]           # this is ipo year
+                sector = data_b[6]           # this is sector
+                industry = data_b[7]
+                summary = data_b[8].replace('"', "").replace(",","")
+                self.cursor.execute(insert_sql,
+                                    (company_name, company_symbol,
+                                     sector, industry, summary))
+                self.con.commit()
 
     def db_input(self, start):
         fetch_sql = "SELECT * FROM stock_id;"
@@ -110,4 +120,12 @@ class Stock:
                                              np.float(adjPrice),
                                              np.float(volume)))
             self.con.commit()
+    def fetch_data(self, symbol):
+        self.stock_data = []
+        select_sql = "SELECT * FROM " + symbol + ";"
+        self.cursor.execute(select_sql)
+        self.stock_data = self.cursor.fetchall()
+        print(self.stock_data)
+
+        return self.stock_data
 
