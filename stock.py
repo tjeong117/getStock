@@ -120,6 +120,7 @@ class Stock:
                                              np.float(adjPrice),
                                              np.float(volume)))
             self.con.commit()
+            
     def fetch_data(self, symbol):
         self.stock_data = []
         select_sql = "SELECT * FROM " + symbol + ";"
