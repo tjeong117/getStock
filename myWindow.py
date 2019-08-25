@@ -3,9 +3,6 @@ import datetime
 import stock
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.mlab as mlab
-import matplotlib.dates as mdates
-import matplotlib.cbook as cbook
 
 
 class Graph:
