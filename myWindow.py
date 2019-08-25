@@ -4,6 +4,7 @@ import stock
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class Graph:
     def __init__(self, start, symbol):
         self.start = start.strftime("%m/%d/%Y")
