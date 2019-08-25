@@ -3,15 +3,17 @@ import datetime
 import stock
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
+import matplotlib.dates as mdates
+import matplotlib.cbook as cbook
 
 
 class Graph:
-    def __init__(self, start, symbol):
+    def __init__(self, start):
         self.start = start.strftime("%m/%d/%Y")
         self.nd = datetime.date.today()
         self.stockObj = stock.Stock('localhost', 'root', '1llusion47', 'stock')
         self.cursor = self.stockObj.con.cursor()
-
 
     def fetch_data(self, symbol):
         self.stock_data = []
@@ -49,13 +51,13 @@ class Graph:
         plt.xlabel("x")
         plt.ylabel("y")
         plt.legend(loc='upper left')
-        plt.title("activation functions")
+        plt.title("stock chart")
         plt.show()
-
 
 
 if __name__ == "__main__":
     start = datetime.datetime(2019, 3, 20)
-    figure = Graph(start, 'TSLA')
-    data = figure.fetch_data("TSLA")
+    figure = Graph(start)
+    data = figure.fetch_data("SCOR")
     figure.graph(data)
+
